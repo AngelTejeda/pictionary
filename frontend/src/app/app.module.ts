@@ -1,12 +1,18 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { RoomComponent } from './components/room/room.component';
 import { HomeComponent } from './components/home/home.component';
-import { CookieService } from 'ngx-cookie-service';
 import { DrawComponent } from './components/draw/draw.component';
+
+import { AppRoutingModule } from './app-routing.module';
+import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
+
+import { CookieService } from 'ngx-cookie-service';
+import { WebSocketService } from './services/websocket.service';
+
+// const config: SocketIoConfig = { url: 'http://localhost:5000', options: {} };
 
 @NgModule({
   declarations: [
@@ -17,10 +23,12 @@ import { DrawComponent } from './components/draw/draw.component';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    SocketIoModule
   ],
   providers: [
-    CookieService
+    CookieService,
+    WebSocketService
   ],
   bootstrap: [AppComponent]
 })

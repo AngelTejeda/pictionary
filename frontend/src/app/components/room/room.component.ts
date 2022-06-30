@@ -15,16 +15,20 @@ export class RoomComponent implements OnInit {
     private activeRoute: ActivatedRoute,
     private router: Router,
     private cookieService: CookieService
-  ) { }
-
-  ngOnInit(): void {
+  ) {
     this.room = this.activeRoute.snapshot.paramMap.get('room');
 
     if (this.room == null) {
+      console.log('room is null');
       this.router.navigate(['']);
+      return;
     }
 
-    this.cookieService.set('room', this.room as string);
+    this.cookieService.set('room', this.room);
+  }
+
+  ngOnInit(): void {
+    
   }
 
 }

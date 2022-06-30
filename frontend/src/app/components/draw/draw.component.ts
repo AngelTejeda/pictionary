@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { WebSocketService } from 'src/app/services/websocket.service';
 
 interface IPoint {
   x: number,
@@ -18,23 +19,15 @@ export class DrawComponent implements OnInit, AfterViewInit {
   public height: number = 450;
 
   private context: CanvasRenderingContext2D | null = null;
-
   private points: Array<IPoint | null> = [];
-
   private isDrawing: boolean = false;
 
+  // Event Listeners
   @HostListener('mousemove', ['$event'])
   private onMouseMove(e: MouseEvent) {
     if (this.isDrawing) {
       const currentPoint = this.getCurrentPoint(e);
-      const prevPoint: IPoint | null = this.points.length > 0
-        ? this.points[this.points.length - 1]
-        : null;
-
-      if (prevPoint !== null)
-        this.drawLine(prevPoint, currentPoint);
-
-      this.points.push(currentPoint);
+      this.addPoint(currentPoint);
     }
   }
 
@@ -43,28 +36,39 @@ export class DrawComponent implements OnInit, AfterViewInit {
     this.isDrawing = true;
 
     const currentPoint = this.getCurrentPoint(e);
-    this.drawPoint(currentPoint);
-
-    this.points.push(currentPoint);
+    this.addPoint(currentPoint);
   }
 
   @HostListener('document:mouseup', ['$event'])
   private onMouseUp(e: MouseEvent) {
     this.isDrawing = false;
 
-    this.points.push(null);
+    this.addPoint(null);
   }
 
-  constructor() {
-
+  constructor(
+    private websocket: WebSocketService
+  ) {
   }
 
   ngOnInit(): void {
-
   }
 
   ngAfterViewInit(): void {
     this.render();
+    const points: Array<IPoint | null> = [
+      {x: 10, y: 10},
+      {x: 20, y: 10},
+      {x: 30, y: 10},
+      {x: 40, y: 10},
+      null,
+      {x: 10, y: 20},
+      {x: 20, y: 30},
+      {x: 30, y: 40},
+      {x: 40, y: 50},
+      {x: 50, y: 60},
+    ];
+    this.loadPoints(points);
   }
 
   private render(): void {
@@ -82,6 +86,16 @@ export class DrawComponent implements OnInit, AfterViewInit {
     this.context.strokeStyle = '#000';
   }
 
+  private loadPoints(points: Array<IPoint | null>) {
+    if (points.length == 0 || points[0] == null)
+      return;
+
+    for (let i=0 ; i<points.length ; i++) {
+      this.addPoint(points[i]);
+    }
+  }
+
+
   private getCurrentPoint(mouseEvent: MouseEvent): IPoint {
     const canvasElement: HTMLCanvasElement = this.canvasRef.nativeElement;
     const elementRect = canvasElement.getBoundingClientRect();
@@ -92,6 +106,22 @@ export class DrawComponent implements OnInit, AfterViewInit {
     };
 
     return currentPoint;
+  }
+
+  private addPoint(newPoint: IPoint | null) {
+    const prevPoint: IPoint | null = this.points.length > 0
+      ? this.points[this.points.length - 1]
+      : null;
+
+    if (newPoint !== null) {
+      if (prevPoint === null) {
+        this.drawPoint(newPoint);
+      }
+      if (prevPoint !== null)
+        this.drawLine(prevPoint, newPoint);
+    }
+
+    this.points.push(newPoint);
   }
 
   private drawPoint(point: IPoint) {
