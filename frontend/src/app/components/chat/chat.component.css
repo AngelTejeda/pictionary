@@ -1,0 +1,64 @@
+#chat-container {
+  height: 100%;
+}
+
+#messages-container {
+  height: 80%;
+  overflow-y: scroll;
+  padding: 0 15px;
+  padding-top: 10px;
+  outline: 1px solid #d8d8d8;
+}
+
+.username {
+  font-weight: bold;
+}
+
+.message {
+  margin: 10px 0;
+}
+
+/* Message Input */
+#chat-form {
+  padding: 15px;
+  outline: 1px solid #d8d8d8;
+  height: 20%;
+}
+
+#chat-container form {
+  height: 100%;
+}
+
+#chat-container form .form-group {
+  height: 100%;
+  position: relative;
+}
+
+#send-button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 30px;
+}
+
+#message-input {
+  resize: none;
+  font-size: 0.9rem;
+  height: 100%;
+  padding-right: 20px;
+}
+
+/* Test */
+/* .message {
+  outline: 1px solid black;
+}
+.message-line {
+  outline: 1px solid green;
+}
+.message-group {
+  outline: 1px solid blue;
+}
+.tick-container {
+  outline: 1px solid red;
+}*/

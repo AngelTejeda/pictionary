@@ -1,0 +1,28 @@
+<div id="chat-container">
+
+  <div id="messages-container">
+    <div class="message" *ngFor="let message of messages">
+      <span class="username">{{ message.username }}:</span> {{ message.text }}
+    </div>
+  </div>
+
+  <div id="chat-form">
+    <form>
+      <div class="form-group">
+        <textarea
+          name="message-input"
+          id="message-input"
+          class="form-control"
+          (keydown.enter)="handleEnter($event)"
+          [(ngModel)]="message">
+        </textarea>
+        <button type="button"
+          class="btn btn-primary" id="send-button"
+          onclick="sendMessage()" [disabled]="!message">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>

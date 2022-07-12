@@ -18,6 +18,7 @@
 
 .selected-color {
   transform: scale(1.2);
+  z-index: 0;
 }
 
 .tool-item {
@@ -26,6 +27,7 @@
   justify-content: center;
   border: 2px solid #313131;
   transition: all .2s ease-in-out;
+  background-color: #fff;
 }
 
 .tool-item:hover:not(.selected-color) {
@@ -33,6 +35,32 @@
   transform: scale(1.1);
 }
 
+.tool-item:active:not(.selected-color) {
+  transform: brightness(0.4);
+}
+
 .tool-item i {
   font-size: 20px;
+}
+
+.tool-item .tooltip-text {
+  visibility: hidden;
+  width: 50px;
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #000;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* transform: translate(50%, 50%); */
+
+  z-index: 1;
+  /* transition: all .1s ease-in-out; */
+}
+
+.tool-item:hover .tooltip-text {
+  visibility: visible;
 }

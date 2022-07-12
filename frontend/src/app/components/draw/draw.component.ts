@@ -28,6 +28,9 @@ export class DrawComponent implements OnInit, AfterViewInit {
   // the line between the last point and the current point, but the complete
   // list of points is stored server-side in order to replicate the drawing
   // when a new user joins the room.
+
+  // TODO: Change the way the points are stored and redrawn. The way it is done
+  // right now doesn't consider when a user draws above someone else's drawing.
   private previousPoints: { [userId: string]: IPoint | null } = {};
 
   public socketId!: string;

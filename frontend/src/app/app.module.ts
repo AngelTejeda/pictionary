@@ -11,6 +11,8 @@ import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 
 import { CookieService } from 'ngx-cookie-service';
 import { WebSocketService } from './services/websocket.service';
+import { ChatComponent } from './components/chat/chat.component';
+import { FormsModule } from '@angular/forms';
 
 const config: SocketIoConfig = { url: '', options: { autoConnect: false } };
 
@@ -19,11 +21,13 @@ const config: SocketIoConfig = { url: '', options: { autoConnect: false } };
     AppComponent,
     RoomComponent,
     HomeComponent,
-    DrawComponent
+    DrawComponent,
+    ChatComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    FormsModule,
     SocketIoModule.forRoot(config)
   ],
   providers: [

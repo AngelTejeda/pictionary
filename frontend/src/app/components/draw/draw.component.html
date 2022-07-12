@@ -5,18 +5,22 @@
       [ngStyle]="{'background-color': color.hex, 'outline-color': color.hex}"
       (click)="changeColor(color)"
       [ngClass]="color == selectedColor ? 'selected-color' : ''">
+      <span class="tooltip-text">{{ color.name }}</span>
     </div>
 
     <div class="tool-item" (click)="grow()">
-      <i class="fa-solid fa-plus"></i>
+      <i class="fa-solid fa-maximize"></i>
+      <span class="tooltip-text">Grow</span>
     </div>
 
     <div class="tool-item" (click)="shrink()">
-      <i class="fa-solid fa-minus"></i>
+      <i class="fa-solid fa-minimize"></i>
+      <span class="tooltip-text">Shrink</span>
     </div>
 
     <div class="tool-item" (click)="clearCanvas(true)">
-      <i class="fa-solid fa-xmark"></i>
+      <i class="fa-solid fa-trash"></i>
+      <span class="tooltip-text">Clear</span>
     </div>
 
   </div>
