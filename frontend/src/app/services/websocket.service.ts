@@ -16,19 +16,17 @@ export class WebSocketService extends Socket {
       url: 'http://localhost:5000',
       options: {
         query: {
-          nameRoom: cookieService.get('room')
+          roomName: cookieService.get('room')
         }
       }
     });
-
-    this.listenEvent();
   }
 
-  private listenEvent(): void{
-    this.ioSocket.on('event', (res: any) => { this.outEvent.emit(res) });
+  public getSocketId(): string | null {
+    return this.ioSocket.id
+      ? this.ioSocket.id
+      : null;
   }
 
-  public emitEvent(payload = {}): void {
-    this.ioSocket.emit('event', payload);
-  }
+
 }

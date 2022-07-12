@@ -2,6 +2,6 @@
   <div class="card-title">
     Sala: {{ this.room }}
   </div>
-  
-  <app-draw></app-draw>
+
+  <app-draw (loadedEvent)="loadRoomData()"></app-draw>
 </div>

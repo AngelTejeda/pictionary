@@ -1,10 +1,10 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, OnInit, Output, ViewChild } from '@angular/core';
+import { IPoint } from 'src/app/models/point';
+import { IRoomPoints } from 'src/app/models/room-points';
+import { ISocketNewPoint } from 'src/app/models/socket-new-point';
+import { IRoomData } from 'src/app/models/socket-room-data';
+import { DrawService } from 'src/app/services/draw.service';
 import { WebSocketService } from 'src/app/services/websocket.service';
-
-interface IPoint {
-  x: number,
-  y: number
-}
 
 @Component({
   selector: 'app-draw',
@@ -14,20 +14,25 @@ interface IPoint {
 export class DrawComponent implements OnInit, AfterViewInit {
 
   @ViewChild('canvasRef') canvasRef!: ElementRef<HTMLCanvasElement>;
+  @Output() loadedEvent: EventEmitter<void> = new EventEmitter();
 
   public width: number = 450;
   public height: number = 450;
 
   private context: CanvasRenderingContext2D | null = null;
-  private points: Array<IPoint | null> = [];
   private isDrawing: boolean = false;
+
+  private points: { [userId: string]: IPoint | null } = {};
+
+  public socketId!: string;
 
   // Event Listeners
   @HostListener('mousemove', ['$event'])
   private onMouseMove(e: MouseEvent) {
     if (this.isDrawing) {
       const currentPoint = this.getCurrentPoint(e);
-      this.addPoint(currentPoint);
+      this.addPoint(this.socketId!, currentPoint);
+      this.drawService.emitNewPoint(currentPoint);
     }
   }
 
@@ -36,39 +41,45 @@ export class DrawComponent implements OnInit, AfterViewInit {
     this.isDrawing = true;
 
     const currentPoint = this.getCurrentPoint(e);
-    this.addPoint(currentPoint);
+    this.addPoint(this.socketId!, currentPoint);
+    this.drawService.emitNewPoint(currentPoint);
   }
 
   @HostListener('document:mouseup', ['$event'])
   private onMouseUp(e: MouseEvent) {
     this.isDrawing = false;
 
-    this.addPoint(null);
+    this.addPoint(this.socketId!, null);
+    this.drawService.emitNewPoint(null);
   }
 
   constructor(
-    private websocket: WebSocketService
+    private drawService: DrawService
   ) {
+    // this.socketId = this.websocket.getSocketId();
   }
 
   ngOnInit(): void {
+    // this.websocket.getRoomData().subscribe({
+    //   next: (roomData: IRoomData) => {
+
+    //   }
+    // });
+
+    this.drawService.listenNewPoint().subscribe({
+      next: (newPoint: ISocketNewPoint) => {
+        this.addPoint(newPoint.senderId, newPoint.point);
+      }
+    });
+
+    this.drawService.listenClearCanvas().subscribe({
+      next: () => { this.clearCanvas(false); }
+    });
   }
 
   ngAfterViewInit(): void {
     this.render();
-    const points: Array<IPoint | null> = [
-      {x: 10, y: 10},
-      {x: 20, y: 10},
-      {x: 30, y: 10},
-      {x: 40, y: 10},
-      null,
-      {x: 10, y: 20},
-      {x: 20, y: 30},
-      {x: 30, y: 40},
-      {x: 40, y: 50},
-      {x: 50, y: 60},
-    ];
-    this.loadPoints(points);
+    this.loadedEvent.emit();
   }
 
   private render(): void {
@@ -86,12 +97,11 @@ export class DrawComponent implements OnInit, AfterViewInit {
     this.context.strokeStyle = '#000';
   }
 
-  private loadPoints(points: Array<IPoint | null>) {
-    if (points.length == 0 || points[0] == null)
-      return;
-
-    for (let i=0 ; i<points.length ; i++) {
-      this.addPoint(points[i]);
+  public loadPoints(points: IRoomPoints) {
+    for (const [userId, userPoints] of Object.entries(points)) {
+      for (const point of userPoints) {
+        this.addPoint(userId, point);
+      }
     }
   }
 
@@ -108,10 +118,8 @@ export class DrawComponent implements OnInit, AfterViewInit {
     return currentPoint;
   }
 
-  private addPoint(newPoint: IPoint | null) {
-    const prevPoint: IPoint | null = this.points.length > 0
-      ? this.points[this.points.length - 1]
-      : null;
+  private addPoint(userId: string, newPoint: IPoint | null) {
+    const prevPoint: IPoint | null = this.points[userId];
 
     if (newPoint !== null) {
       if (prevPoint === null) {
@@ -121,10 +129,10 @@ export class DrawComponent implements OnInit, AfterViewInit {
         this.drawLine(prevPoint, newPoint);
     }
 
-    this.points.push(newPoint);
+    this.points[userId] = newPoint;
   }
 
-  private drawPoint(point: IPoint) {
+  private drawPoint(point: IPoint, emit: boolean = false) {
     this.context?.fillRect(point.x, point.y, 3, 3);
   }
 
@@ -140,8 +148,12 @@ export class DrawComponent implements OnInit, AfterViewInit {
     }
   }
 
-  public clearCanvas() {
-    this.points = [];
+  public clearCanvas(emit: boolean = false) {
+    this.points = {};
     this.context?.clearRect(0, 0, this.width, this.height);
+
+    if (emit) {
+      this.drawService.emitClearCanvas();
+    }
   }
 }

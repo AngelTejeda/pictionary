@@ -11,16 +11,62 @@ app.get('/', (req, res) => {
   res.send('<h1>Hey Socket.io</h1>');
 });
 
-io.on('connection', (socket) => {
-  const idHandShake = socket.id;
-  const { nameRoom } = socket.handshake.query;
-  
-  socket.join(nameRoom);
+let points = {};
+let users = {};
 
-  console.log(`Device ${idHandShake} joined room ${nameRoom}`);
+class User {
+  constructor(id, username) {
+    this.id = id;
+    this.username = username;
+  }
+}
+
+io.on('connection', (socket) => {
+  const socketId = socket.id;
+  const { roomName } = socket.handshake.query;
+
+  if (!points[roomName])
+    points[roomName] = {};
+
+  console.log(`Device ${socketId} joined room ${roomName}`);
+
+  socket.join(roomName);
+  users[socketId] = new User(socketId, "Anonymous" + socketId);
+
+  socket.emit('room-data', {
+    id: socketId,
+    points: points[roomName],
+    users: users
+  });
 
   socket.on('disconnect', () => {
-    console.log(`Device ${idHandShake} disconnected from ${nameRoom}`);
+    console.log(`Device ${socketId} disconnected from ${roomName}`);
+
+    const user = users[socketId];
+    delete users[socketId];
+
+    socket.broadcast.to(roomName).emit('user-disconnected', user);
+  });
+
+  socket.on('new-point', (point) => {
+    // if (!points[roomName])
+    //   points[roomName] = {};
+
+    if (!points[roomName][socketId])
+      points[roomName][socketId] = [];
+
+    points[roomName][socketId].push(point);
+
+    socket.broadcast.to(roomName).emit('new-point', {
+      senderId: socketId,
+      point: point
+    });
+  });
+
+  socket.on('clear-canvas', () => {
+    points[roomName] = {};
+
+    socket.broadcast.to(roomName).emit('clear-canvas', {});
   });
 });
 
