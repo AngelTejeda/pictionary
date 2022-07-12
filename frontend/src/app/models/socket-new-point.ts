@@ -1,6 +1,6 @@
 import { IPoint } from "./point";
 
-export interface ISocketNewPoint {
-  senderId: string,
+export interface INewPoint {
+  userId: string,
   point: IPoint | null
 }

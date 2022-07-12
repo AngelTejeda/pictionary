@@ -12,7 +12,7 @@ import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { CookieService } from 'ngx-cookie-service';
 import { WebSocketService } from './services/websocket.service';
 
-// const config: SocketIoConfig = { url: 'http://localhost:5000', options: {} };
+const config: SocketIoConfig = { url: '', options: { autoConnect: false } };
 
 @NgModule({
   declarations: [
@@ -24,7 +24,7 @@ import { WebSocketService } from './services/websocket.service';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    SocketIoModule
+    SocketIoModule.forRoot(config)
   ],
   providers: [
     CookieService,

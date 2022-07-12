@@ -1,21 +1,21 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
-import { IUser } from 'src/app/models/user';
-import { IPoint } from 'src/app/models/point';
-import { WebSocketService } from 'src/app/services/websocket.service';
-import { IRoomData } from 'src/app/models/socket-room-data';
-import { IRoomPoints } from 'src/app/models/room-points';
-import { IRoomUsers } from 'src/app/models/room-users';
+
 import { DrawComponent } from '../draw/draw.component';
+
+import { CookieService } from 'ngx-cookie-service';
 import { RoomService } from 'src/app/services/room.service';
+
+import { IRoomData } from 'src/app/models/socket-room-data';
+import { IRoomUsers } from 'src/app/models/room-users';
+import { IUser } from 'src/app/models/user';
 
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.css']
 })
-export class RoomComponent implements AfterViewInit {
+export class RoomComponent implements OnInit {
 
   @ViewChild(DrawComponent) drawComponent!: DrawComponent;
 
@@ -24,12 +24,10 @@ export class RoomComponent implements AfterViewInit {
 
   constructor(
     private activeRoute: ActivatedRoute,
-    private router: Router,
     private cookieService: CookieService,
-    private roomService: RoomService
+    private roomService: RoomService,
+    private router: Router
   ) {
-    // TODO: The websocket service is loaded before the cookie service,
-    // so the cookie service is not yet available.
     this.room = this.activeRoute.snapshot.paramMap.get('room');
 
     if (this.room == null) {
@@ -38,10 +36,21 @@ export class RoomComponent implements AfterViewInit {
     }
 
     this.cookieService.set('room', this.room);
+    this.roomService.changeRoom();
   }
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
+    this.roomService.listenNewConnection().subscribe({
+      next: (newUser: IUser) => {
+        this.users[newUser.id] = newUser;
+      }
+    });
 
+    this.roomService.listenUserDisconnected().subscribe({
+      next: (user: IUser) => {
+        delete this.users[user.id];
+      }
+    });
   }
 
   public loadRoomData(): void {

@@ -1,31 +1,43 @@
 import { EventEmitter, Injectable, Output } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-import { Socket } from 'ngx-socket-io';
+import { Socket, SocketIoConfig } from 'ngx-socket-io';
 
 @Injectable({
   providedIn: 'root'
 })
-export class WebSocketService extends Socket {
+export class WebSocketService {
 
   @Output() outEvent: EventEmitter<any> = new EventEmitter();
 
+  private config: SocketIoConfig = {
+    url: 'http://localhost:5000',
+    options: {}
+  };
+
   constructor(
-    private cookieService: CookieService
+    private cookieService: CookieService,
+    private _socket: Socket
   ) {
-    super({
-      url: 'http://localhost:5000',
-      options: {
-        query: {
-          roomName: cookieService.get('room')
-        }
-      }
-    });
+    // this.cookieService.get('room');
+    this._socket = new Socket(this.config);
   }
 
+  get socket(): Socket { return this._socket; }
+
   public getSocketId(): string | null {
-    return this.ioSocket.id
-      ? this.ioSocket.id
+    return this._socket.ioSocket.id
+      ? this._socket.ioSocket.id
       : null;
+  }
+
+  public changeRoom(): void {
+    this._socket.disconnect();
+    this.config.options = {
+      query: {
+        roomName: this.cookieService.get('room')
+      }
+    };
+    this._socket = new Socket(this.config);
   }
 
 

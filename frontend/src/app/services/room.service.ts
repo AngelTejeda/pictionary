@@ -1,4 +1,4 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { IRoomData } from '../models/socket-room-data';
 import { IUser } from '../models/user';
@@ -7,7 +7,7 @@ import { WebSocketService } from './websocket.service';
 @Injectable({
   providedIn: 'root'
 })
-export class RoomService implements OnInit {
+export class RoomService {
 
   constructor(
     private websocket: WebSocketService
@@ -15,20 +15,21 @@ export class RoomService implements OnInit {
 
   }
 
-  ngOnInit(): void {
+  public changeRoom(): void {
+    this.websocket.changeRoom();
   }
 
   // Listen
   public getRoomData(): Observable<IRoomData> {
-    return this.websocket.fromEvent('room-data');
+    return this.websocket.socket.fromEvent('room-data');
   }
 
   public listenNewConnection(): Observable<IUser> {
-    return this.websocket.fromEvent('new-connection');
+    return this.websocket.socket.fromEvent('new-connection');
   }
 
   public listenUserDisconnected(): Observable<IUser> {
-    return this.websocket.fromEvent('user-disconnected');
+    return this.websocket.socket.fromEvent('user-disconnected');
   }
 
 }

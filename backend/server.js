@@ -25,20 +25,27 @@ io.on('connection', (socket) => {
   const socketId = socket.id;
   const { roomName } = socket.handshake.query;
 
+  console.log(`Device ${socketId} joined room ${roomName}`);
+
+  // If it is the first user to join the room, create a new set of points for the room
   if (!points[roomName])
     points[roomName] = {};
 
-  console.log(`Device ${socketId} joined room ${roomName}`);
-
+  // Join the room and register the user
   socket.join(roomName);
   users[socketId] = new User(socketId, "Anonymous" + socketId);
 
+  // Send the current data of the room to the new user
   socket.emit('room-data', {
     id: socketId,
     points: points[roomName],
     users: users
   });
 
+
+  // Listen events and broadcast them to the rest of the users in the room
+
+  // User disconnected
   socket.on('disconnect', () => {
     console.log(`Device ${socketId} disconnected from ${roomName}`);
 
@@ -48,21 +55,20 @@ io.on('connection', (socket) => {
     socket.broadcast.to(roomName).emit('user-disconnected', user);
   });
 
+  // User drew on the canvas
   socket.on('new-point', (point) => {
-    // if (!points[roomName])
-    //   points[roomName] = {};
-
     if (!points[roomName][socketId])
       points[roomName][socketId] = [];
 
     points[roomName][socketId].push(point);
 
     socket.broadcast.to(roomName).emit('new-point', {
-      senderId: socketId,
+      userId: socketId,
       point: point
     });
   });
 
+  // User cleared the canvas
   socket.on('clear-canvas', () => {
     points[roomName] = {};
 
