@@ -53,8 +53,8 @@ export class DrawComponent implements OnInit, AfterViewInit {
     { name: 'Brown', hex: '#b97a56' },
   ]
 
-  private selectedColor: IColor = this.colors[3];
-  private pencilSize: number = 3;
+  public selectedColor: IColor = this.colors[3];
+  public pencilSize: number = 3;
 
   // Event Listeners
   @HostListener('mousemove', ['$event'])
@@ -132,7 +132,8 @@ export class DrawComponent implements OnInit, AfterViewInit {
     const currentPoint: IPoint = {
       x: mouseEvent.clientX - elementRect.left,
       y: mouseEvent.clientY - elementRect.top,
-      hexColor: this.selectedColor.hex
+      hexColor: this.selectedColor.hex,
+      pencilSize: this.pencilSize
     };
 
     return currentPoint;
@@ -156,11 +157,12 @@ export class DrawComponent implements OnInit, AfterViewInit {
 
   private drawPoint(point: IPoint) {
     this.context.fillStyle = point.hexColor;
-    this.context.fillRect(point.x, point.y, this.pencilSize, this.pencilSize);
+    this.context.fillRect(point.x, point.y, point.pencilSize, point.pencilSize);
   }
 
   private drawLine(prevPoint: IPoint, currentPoint: IPoint) {
     this.context.strokeStyle = currentPoint.hexColor;
+    this.context.lineWidth = currentPoint.pencilSize;
     this.context.beginPath();
 
     this.context.moveTo(prevPoint.x, prevPoint.y);

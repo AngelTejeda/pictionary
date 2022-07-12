@@ -1,29 +1,24 @@
-<div class="container">
-
-  <div id="canvas-container">
-    <div id="tool-container">
-      <div
-        *ngFor="let color of colors" class="tool-item"
-        [ngStyle]="{'background-color': color.hex, 'outline-color': color.hex}"
-        (click)="changeColor(color)">
-      </div>
-
-      <div class="tool-item" (click)="grow()">
-        +
-      </div>
-
-      <div class="tool-item" (click)="shrink()">
-        -
-      </div>
-
-      <div class="tool-item" (click)="clearCanvas(true)">
-        x
-      </div>
-
+<div id="canvas-container">
+  <div id="tool-container">
+    <div
+      *ngFor="let color of colors" class="tool-item"
+      [ngStyle]="{'background-color': color.hex, 'outline-color': color.hex}"
+      (click)="changeColor(color)"
+      [ngClass]="color == selectedColor ? 'selected-color' : ''">
     </div>
-    <canvas id="canvas" #canvasRef></canvas>
+
+    <div class="tool-item" (click)="grow()">
+      <i class="fa-solid fa-plus"></i>
+    </div>
+
+    <div class="tool-item" (click)="shrink()">
+      <i class="fa-solid fa-minus"></i>
+    </div>
+
+    <div class="tool-item" (click)="clearCanvas(true)">
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+
   </div>
-  <!-- <div>
-    <button id="clear-button" type="button" (click)="clearCanvas(true)">Clear</button>
-  </div> -->
+  <canvas id="canvas" #canvasRef></canvas>
 </div>
