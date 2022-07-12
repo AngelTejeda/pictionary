@@ -4,7 +4,7 @@ import { IRoomUsers } from "./room-users";
 import { IUser } from "./user";
 
 export interface IRoomData {
-  id: string,
-  points: IRoomPoints,
-  users: IRoomUsers
+  id: string;
+  points: IRoomPoints;
+  users: IRoomUsers;
 }

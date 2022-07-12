@@ -2,6 +2,7 @@ import { AfterViewInit, Component,
          ElementRef, EventEmitter,
          HostListener, OnInit,
          Output, ViewChild } from '@angular/core';
+import { IColor } from 'src/app/models/color';
 import { IPoint } from 'src/app/models/point';
 import { IRoomPoints } from 'src/app/models/room-points';
 import { INewPoint } from 'src/app/models/socket-new-point';
@@ -30,6 +31,30 @@ export class DrawComponent implements OnInit, AfterViewInit {
   private previousPoints: { [userId: string]: IPoint | null } = {};
 
   public socketId!: string;
+
+  public colors: IColor[] = [
+    { name: 'White', hex: '#ffffff' },
+    { name: 'Grey', hex: '#c3c3c3' },
+    { name: 'Dark Grey', hex: '#585858' },
+    { name: 'Black', hex: '#000000' },
+    { name: 'Dark Red', hex: '#88001b' },
+    { name: 'Red', hex: '#ec1c24' },
+    { name: 'Orange', hex: '#ff7f27' },
+    { name: 'Gold', hex: '#ffca18' },
+    { name: 'Light Yellow', hex: '#fdeca6' },
+    { name: 'Yellow', hex: '#fff200' },
+    { name: 'Lime', hex: '#c4ff0e' },
+    { name: 'Green', hex: '#0ed145' },
+    { name: 'Aqua', hex: '#8cfffb' },
+    { name: 'Turquoise', hex: '#00a8f3' },
+    { name: 'Indigo', hex: '#3f48cc' },
+    { name: 'Purple', hex: '#b83dba' },
+    { name: 'Rose', hex: '#ffaec8' },
+    { name: 'Brown', hex: '#b97a56' },
+  ]
+
+  private selectedColor: IColor = this.colors[3];
+  private pencilSize: number = 3;
 
   // Event Listeners
   @HostListener('mousemove', ['$event'])
@@ -87,9 +112,9 @@ export class DrawComponent implements OnInit, AfterViewInit {
     canvasElement.width = this.width;
     canvasElement.height = this.height;
 
-    this.context.lineWidth = 3;
+    this.context.lineWidth = this.pencilSize;
     this.context.lineCap = 'round';
-    this.context.strokeStyle = '#000';
+    this.context.strokeStyle = this.selectedColor.hex;
   }
 
   public loadPoints(points: IRoomPoints) {
@@ -106,7 +131,8 @@ export class DrawComponent implements OnInit, AfterViewInit {
 
     const currentPoint: IPoint = {
       x: mouseEvent.clientX - elementRect.left,
-      y: mouseEvent.clientY - elementRect.top
+      y: mouseEvent.clientY - elementRect.top,
+      hexColor: this.selectedColor.hex
     };
 
     return currentPoint;
@@ -115,11 +141,10 @@ export class DrawComponent implements OnInit, AfterViewInit {
   private addPoint(userId: string, newPoint: IPoint | null, emit: boolean = false) {
     const prevPoint: IPoint | null = this.previousPoints[userId];
 
-    if (newPoint !== null) {
-      if (prevPoint === null) {
+    if (newPoint != null) {
+      if (prevPoint == null)
         this.drawPoint(newPoint);
-      }
-      if (prevPoint !== null)
+      else
         this.drawLine(prevPoint, newPoint);
     }
 
@@ -130,10 +155,12 @@ export class DrawComponent implements OnInit, AfterViewInit {
   }
 
   private drawPoint(point: IPoint) {
-    this.context!.fillRect(point.x, point.y, 3, 3);
+    this.context.fillStyle = point.hexColor;
+    this.context.fillRect(point.x, point.y, this.pencilSize, this.pencilSize);
   }
 
   private drawLine(prevPoint: IPoint, currentPoint: IPoint) {
+    this.context.strokeStyle = currentPoint.hexColor;
     this.context.beginPath();
 
     this.context.moveTo(prevPoint.x, prevPoint.y);
@@ -143,10 +170,24 @@ export class DrawComponent implements OnInit, AfterViewInit {
 
   public clearCanvas(emit: boolean = false) {
     this.previousPoints = {};
-    this.context?.clearRect(0, 0, this.width, this.height);
+    this.context.clearRect(0, 0, this.width, this.height);
 
     if (emit) {
       this.drawService.emitClearCanvas();
     }
+  }
+
+  public changeColor(color: IColor): void {
+    this.selectedColor = color;
+  }
+
+  public grow(): void {
+    this.pencilSize++;
+    this.context.lineWidth = this.pencilSize;
+  }
+
+  public shrink(): void {
+    this.pencilSize--;
+    this.context.lineWidth = this.pencilSize;
   }
 }

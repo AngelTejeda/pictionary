@@ -1,3 +1,7 @@
+.container {
+  padding: 15px;
+}
+
 #canvas {
   border: 3px solid #000;
   border-radius: 5px;
@@ -10,4 +14,30 @@
   height: 30px;
   font-size: 20px;
   margin: 10px;
+}
+
+#canvas-container {
+  display: flex;
+  height: 100%;
+  justify-content: space-between;
+}
+
+
+#tool-container {
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 30px);
+  grid-auto-rows: 30px;
+  grid-gap: 15px;
+  /* padding: 10px; */
+}
+
+.tool-item {
+  border: 1px solid rgb(112, 112, 112);
+  transition: all .2s ease-in-out;
+}
+
+.tool-item:hover {
+  cursor: pointer;
+  transform: scale(1.1);
 }

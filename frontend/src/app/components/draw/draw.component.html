@@ -1,7 +1,29 @@
 <div class="container">
-  <canvas id="canvas" #canvasRef></canvas>
 
-  <div>
-    <button id="clear-button" type="button" (click)="clearCanvas(true)">Clear</button>
+  <div id="canvas-container">
+    <div id="tool-container">
+      <div
+        *ngFor="let color of colors" class="tool-item"
+        [ngStyle]="{'background-color': color.hex, 'outline-color': color.hex}"
+        (click)="changeColor(color)">
+      </div>
+
+      <div class="tool-item" (click)="grow()">
+        +
+      </div>
+
+      <div class="tool-item" (click)="shrink()">
+        -
+      </div>
+
+      <div class="tool-item" (click)="clearCanvas(true)">
+        x
+      </div>
+
+    </div>
+    <canvas id="canvas" #canvasRef></canvas>
   </div>
+  <!-- <div>
+    <button id="clear-button" type="button" (click)="clearCanvas(true)">Clear</button>
+  </div> -->
 </div>
